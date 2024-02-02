@@ -1,4 +1,4 @@
-package slave;
+package Slave;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

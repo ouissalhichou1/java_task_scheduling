@@ -1,4 +1,4 @@
-package MainServer;
+package Slave;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -6,7 +6,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 
-public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI.Filters {
+/**
+ * ImplFilters
+ */
+public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI.Filters  {
+
 
     public ImplFilters() throws RemoteException {
         super();
@@ -14,11 +18,12 @@ public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI
 
     // convolution--------------------------------------------------
     @Override
-    public Worker.SubMatrix applyFilter(Worker.SubMatrix inputSubMatrix, int[][] ker) {
+    public SubMatrix applyFilter(SubMatrix inputSubMatrix, int[][] ker) {
         int[][] inputMatrix = inputSubMatrix.matrix;
         int height = inputMatrix.length;
         int width = inputMatrix[0].length;
-
+        // float[] ker = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+        // *Kernel
         int rows = ker.length;
         int columns = ker[0].length;
 
@@ -30,6 +35,7 @@ public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI
             }
         }
 
+
         Kernel kernel = new Kernel(3, 3, arraykernel);
         ConvolveOp convolveOp = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
         BufferedImage inputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -38,17 +44,20 @@ public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI
                 inputImage.setRGB(x, y, inputMatrix[y][x]);
             }
         }
-
+        // convolution--------------------------------------------------
+        // gryskil-----------------------------------------------------
         BufferedImage outputBufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         convolveOp.filter(inputImage, outputBufferedImage);
         int[][] outputMatrix = new int[height][width];
         for (int y = 1; y < height; y++) {
             for (int x = 1; x < width; x++) {
-                outputMatrix[y - 1][x - 1] = outputBufferedImage.getRGB(x, y);
+                outputMatrix[y-1][x-1] = outputBufferedImage.getRGB(x, y);
             }
         }
 
-        inputSubMatrix.matrix = outputMatrix;
+
+        inputSubMatrix.matrix=outputMatrix;
         return inputSubMatrix;
     }
+
 }

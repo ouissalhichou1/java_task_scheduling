@@ -9,11 +9,6 @@ import java.rmi.Naming;
 import java.util.ArrayList;
 
 
-import MainServer.ImageDivider.SubMatrix;
-
-
-
-
 import Ressources.Databright;
 import Ressources.DataConvolution;
 import Ressources.DataGray;
@@ -21,7 +16,7 @@ import Ressources.DataNoise;
 import Ressources.DataResult;
 import Ressources.Datainvert;
 import Ressources.DataSapia;
-import RessourcesForRMI.WorkerDataList;
+import RessourcesForRMI.SlaveDataList;
 import RessourcesForRMI.Filters;
 import RessourcesForRMI.WorkerData;
 
@@ -158,7 +153,7 @@ public class ServerThread implements Runnable {
                         do {
                             if (attempts != 0)
                                 Thread.sleep(2000);
-                            dispoWorkers = WorkerDataList.DispoWorkers();
+                            dispoWorkers = SlaveDataList.DispoWorkers();
 
                         } while (dispoWorkers.size() == 0 && attempts++ < 5);
 

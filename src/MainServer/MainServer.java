@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import RessourcesForRMI.WorkerDataList;
+import RessourcesForRMI.SlaveDataList;
 
 public class MainServer extends Thread {
     private static Executor executor;
@@ -31,9 +31,6 @@ public class MainServer extends Thread {
         } catch (Exception e2) {
             System.exit(0);
         }
-        
-
-
         /* 
         * Run the socket of Worker
         */
@@ -47,7 +44,7 @@ public class MainServer extends Thread {
         * GET SELVERS
         */
         getSelvers(prop);
-        System.out.println("Number of Workers :"+WorkerDataList.ListWorkers.size());
+        System.out.println("Number of Workers :"+ SlaveDataList.ListWorkers.size());
 
 
         ServerSocket ss;
@@ -86,7 +83,7 @@ public class MainServer extends Thread {
         String portSlv = prop.getProperty("Worker1.port");
         int i=1;
         while(hostSlv != null){
-            WorkerDataList.addWorker("rmi://"+hostSlv+":"+portSlv+"/Worker");
+            SlaveDataList.addWorker("rmi://"+hostSlv+":"+portSlv+"/Worker");
             i++;
             
             hostSlv = prop.getProperty("Worker"+i+".host");
