@@ -1,3 +1,4 @@
+// ImplFilters.java
 package MainServer;
 
 import java.rmi.RemoteException;
@@ -5,16 +6,16 @@ import java.rmi.server.UnicastRemoteObject;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import RessourcesForRMI.Filters;
 
-public class ImplFilters extends UnicastRemoteObject implements RessourcesForRMI.Filters {
+public class ImplFilters extends UnicastRemoteObject implements Filters {
 
     public ImplFilters() throws RemoteException {
         super();
     }
 
-    // convolution--------------------------------------------------
     @Override
-    public Worker.SubMatrix applyFilter(Worker.SubMatrix inputSubMatrix, int[][] ker) {
+    public SubMatrix applyFilter(SubMatrix inputSubMatrix, int[][] ker) throws RemoteException {
         int[][] inputMatrix = inputSubMatrix.matrix;
         int height = inputMatrix.length;
         int width = inputMatrix[0].length;

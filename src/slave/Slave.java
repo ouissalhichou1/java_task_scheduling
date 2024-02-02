@@ -1,5 +1,7 @@
 package Slave; // Update the package statement if necessary
 
+import MainServer.ImplFilters;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.Naming;

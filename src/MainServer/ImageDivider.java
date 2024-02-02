@@ -30,34 +30,36 @@ public class ImageDivider {
 
         return subMatrices;
     }
+
     public static int[][] merge(ArrayList<SubMatrix> subMatrices, int rows, int cols) {
-    int[][] image = new int[rows][cols];
+        int[][] image = new int[rows][cols];
 
-    subMatrices.sort((a, b) -> a.index - b.index);
+        subMatrices.sort((a, b) -> a.index - b.index);
 
-    for (SubMatrix subMatrix : subMatrices) {
-        int startRow = subMatrix.startRow;
-        int endRow = subMatrix.endRow;
-        int index = subMatrix.index;
+        for (SubMatrix subMatrix : subMatrices) {
+            int startRow = subMatrix.startRow;
+            int endRow = subMatrix.endRow;
+            int index = subMatrix.index;
 
-        for (int i = startRow; i < endRow; i++) {
-            for (int j = 0; j < cols; j++) {
-                image[i][j] = subMatrix.matrix[i - startRow][j];
+            for (int i = startRow; i < endRow; i++) {
+                for (int j = 0; j < cols; j++) {
+                    image[i][j] = subMatrix.matrix[i - startRow][j];
+                }
             }
         }
+
+        return image;
     }
 
-    return image;
-}
-    public static class SubMatrix implements Serializable{
+    public static class SubMatrix implements Serializable {
         public int[][] matrix;
         public int startRow;
         public int endRow;
         public int index;
 
-        SubMatrix(int[][] matrix, int startRow, int endRow, int index) {
-            this.matrix = new int[endRow - startRow+2][matrix[0].length+2];
-            for(int[] row:this.matrix){
+        public SubMatrix(int[][] matrix, int startRow, int endRow, int index) {
+            this.matrix = new int[endRow - startRow + 2][matrix[0].length + 2];
+            for (int[] row : this.matrix) {
                 Arrays.fill(row, 0);
             }
 
@@ -66,9 +68,7 @@ public class ImageDivider {
             this.index = index;
 
             for (int i = startRow; i < endRow; i++) {
-                for (int j = 0; j < matrix[0].length; j++) {
-                    this.matrix[i - startRow][j] = matrix[i][j];
-                }
+                System.arraycopy(matrix[i], 0, this.matrix[i - startRow], 0, matrix[i].length);
             }
         }
     }

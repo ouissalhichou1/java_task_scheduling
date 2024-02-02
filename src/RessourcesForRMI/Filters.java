@@ -1,12 +1,10 @@
+// Filters.java
 package RessourcesForRMI;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import MainServer.SubMatrix;
 
-/**
- * Filters
- */
 public interface Filters extends Remote {
-
-    public MainServer.Worker.SubMatrix applyFilter(MainServer.Worker.SubMatrix inputMatrix, int[][] ker) throws RemoteException;
-
+    SubMatrix applyFilter(SubMatrix inputSubMatrix, int[][] ker) throws RemoteException;
 }
