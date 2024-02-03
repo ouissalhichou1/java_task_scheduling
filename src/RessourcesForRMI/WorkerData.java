@@ -1,16 +1,20 @@
 package RessourcesForRMI;
 
-public class WorkerData{
-    public String linkRMI;
-    public int dispo;
+import java.io.Serializable;
 
-    public WorkerData(String linkRMI,int dispo){
-        this.linkRMI=linkRMI;
-        this.dispo=dispo;
+public class WorkerData implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    public String linkRMI;
+    public boolean dispo;
+
+    public WorkerData(String linkRMI, boolean dispo) {
+        this.linkRMI = linkRMI;
+        this.dispo = dispo;
     }
 
-    public WorkerData(String linkRMI){
-        this.linkRMI=linkRMI;
-        this.dispo=1;
+    public WorkerData(String linkRMI) {
+        this.linkRMI = linkRMI;
+        this.dispo = true; // Assuming true means available
     }
 }

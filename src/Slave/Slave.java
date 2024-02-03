@@ -23,21 +23,11 @@ public class Slave {
     static int Slave_port;
     static String Slave_host;
     public static void main(String[] args) throws UnknownHostException {
-        /*
-         * Read Proprieties from file
-         */
-        // Properties prop=new Properties();
-        // FileInputStream ip;
-        // //Par defaut
-        // String FileConfiguration= "cfgWorker.properties";
-        // if(args.length>0)
-        //     FileConfiguration = args[0];
-        // try {
-        //     ip = new FileInputStream(FileConfiguration);
-        //     prop.load(ip);
-        // } catch (Exception e2) {
-        //     System.exit(0);
-        // }
+        if (args.length == 0) {
+            System.out.println("Usage: java Slave.Slave <port>");
+            System.exit(1);
+        }
+
         Slave_port = Integer.parseInt(args[0]);
 
         InetAddress localHost = InetAddress.getLocalHost();

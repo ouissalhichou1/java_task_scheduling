@@ -1,24 +1,29 @@
 package RessourcesForRMI;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-public class SlaveDataList {
-    public static ArrayList<WorkerData> ListWorkers = new ArrayList<WorkerData>();
-    public static void addWorker(String linkRMI){
+public class SlaveDataList extends UnicastRemoteObject {
+    private static final long serialVersionUID = 1L;
+
+    public static ArrayList<WorkerData> ListWorkers = new ArrayList<>();
+
+    public SlaveDataList() throws RemoteException {
+        super();
+    }
+
+    public void addWorker(String linkRMI) {
         ListWorkers.add(new WorkerData(linkRMI));
     }
-    public static ArrayList<WorkerData> DispoWorkers(){
-        ArrayList<WorkerData> tmpWokers=new ArrayList<WorkerData>();
+
+    public ArrayList<WorkerData> DispoWorkers() {
+        ArrayList<WorkerData> tmpWokers = new ArrayList<>();
         for (WorkerData tmpWorker : ListWorkers) {
-            if(tmpWorker.dispo==1){
+            if (tmpWorker.dispo) {
                 tmpWokers.add(tmpWorker);
             }
         }
         return tmpWokers;
     }
 }
-
-// Hello stub = (Hello) Naming.lookup("rmi://localhost:1099/BK");
-
-
-
