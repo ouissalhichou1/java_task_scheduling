@@ -49,6 +49,8 @@ public class Client extends JFrame {
 
     public static void main(String[] args) {
         Properties prop = new Properties();
+        final String serverHost = "localhost"; // Change this to your server's host address
+        final int serverPort = 5200;
         String FileConfiguration = "cfgClient.properties";
         if (args.length > 0)
             FileConfiguration = args[0];

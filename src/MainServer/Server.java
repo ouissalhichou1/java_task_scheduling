@@ -1,6 +1,7 @@
 package MainServer;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,18 +19,12 @@ public class Server {
     public static void main(String[] args) {
         // Read properties from file
         Properties prop = new Properties();
-        FileInputStream ip;
-        // Default configuration file
-        String FileConfiguration = "C:\\xampp\\htdocs\\GitHub\\java_task_scheduling\\cfgMainServer.properties";
-        if (args.length > 0)
-            FileConfiguration = args[0];
-        try {
-            ip = new FileInputStream(FileConfiguration);
+        try (FileInputStream ip = new FileInputStream("C:\\xampp\\htdocs\\GitHub\\java_task_scheduling\\cfgMainServer.properties")) {
             prop.load(ip);
-            ip.close(); // Close the FileInputStream
-        } catch (Exception e2) {
-            e2.printStackTrace(); // Log the exception
-            System.exit(1); // Exit with error code
+        } catch (IOException e) {
+            System.err.println("Error loading properties file: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
         }
 
         // Initialize server properties
@@ -38,10 +33,10 @@ public class Server {
 
         // Initialize server socket
         try (ServerSocket ss = new ServerSocket(MainServer_port)) {
-            executor = Executors.newFixedThreadPool(8); // Adjusted thread pool size
+            executor = Executors.newFixedThreadPool(8);
             taskQueue = new TaskQueue();
 
-            System.out.println("Started at port " + MainServer_port);
+            System.out.println("Server started at port " + MainServer_port);
 
             // Start worker threads
             for (int i = 0; i < 8; i++) {
@@ -55,16 +50,21 @@ public class Server {
                 System.out.println("+(" + TaskID + ") : New Task in queue");
 
                 // Wait for task name from client
-                ObjectInputStream dis = new ObjectInputStream(soc.getInputStream());
-                String taskName = (String) dis.readObject();
-                System.out.println("+(" + TaskID + ") : Task is " + taskName);
+                try (ObjectInputStream dis = new ObjectInputStream(soc.getInputStream())) {
+                    String taskName = (String) dis.readObject();
+                    System.out.println("+(" + TaskID + ") : Task is " + taskName);
 
-                // Create a new task with the received task name and add it to the task queue
-                Task newTask = new Task(soc, TaskID++, taskName);
-                taskQueue.add(newTask);
+                    // Create a new task with the received task name and add it to the task queue
+                    Task newTask = new Task(soc, TaskID++, taskName);
+                    taskQueue.add(newTask);
+                } catch (ClassNotFoundException e) {
+                    System.err.println("Error reading task name: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e1) {
-            e1.printStackTrace(); // Log the exception
+        } catch (IOException e) {
+            System.err.println("Error starting server: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
