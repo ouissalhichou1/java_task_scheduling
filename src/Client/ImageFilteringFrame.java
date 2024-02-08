@@ -47,6 +47,8 @@ public class ImageFilteringFrame extends JFrame {
         // Create a panel for process button
         JPanel processButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton processImageButton = new JButton("Process Image");
+        processImageButton.setBackground(Color.decode("#4B4B4B")); // Set background color of the button
+        processImageButton.setForeground(Color.WHITE); // Set text color of the button
         processImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -59,6 +61,7 @@ public class ImageFilteringFrame extends JFrame {
             }
         });
         processButtonPanel.add(processImageButton);
+        processButtonPanel.setBackground(Color.decode("#C0BCB5")); // Set background color of the panel
 
         // Create controls panel for process button
         JPanel controlsPanel = new JPanel(new BorderLayout());
@@ -78,6 +81,20 @@ public class ImageFilteringFrame extends JFrame {
         JButton sepiaButton = new JButton("Sepia Filter");
         JButton invertButton = new JButton("Invert Filter");
         JButton brightnessButton = new JButton("Brightness Filter");
+
+        // Set colors for filter buttons
+        convolutionButton.setBackground(Color.decode("#4B4B4B"));
+        convolutionButton.setForeground(Color.WHITE);
+        noiseButton.setBackground(Color.decode("#4B4B4B"));
+        noiseButton.setForeground(Color.WHITE);
+        grayButton.setBackground(Color.decode("#4B4B4B"));
+        grayButton.setForeground(Color.WHITE);
+        sepiaButton.setBackground(Color.decode("#4B4B4B"));
+        sepiaButton.setForeground(Color.WHITE);
+        invertButton.setBackground(Color.decode("#4B4B4B"));
+        invertButton.setForeground(Color.WHITE);
+        brightnessButton.setBackground(Color.decode("#4B4B4B"));
+        brightnessButton.setForeground(Color.WHITE);
 
         // Add action listeners to filter buttons
         convolutionButton.addActionListener(e -> {
