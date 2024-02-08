@@ -4,6 +4,8 @@ import Ressources.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +17,7 @@ import java.util.Properties;
 public class Client extends JFrame {
     static int MainServer_port;
     static String MainServer_host;
+
     public Client() {
         setTitle("Choose Operation");
         setSize(300, 150);
@@ -43,6 +46,7 @@ public class Client extends JFrame {
 
         setVisible(true);
     }
+
     public static void main(String[] args) {
         Properties prop = new Properties();
         String FileConfiguration = "cfgClient.properties";
@@ -71,6 +75,7 @@ public class Client extends JFrame {
             e.printStackTrace();
         }
     }
+
     class MatrixCalculationsFrame extends JFrame {
 
         private JComboBox<String> operationComboBox;
@@ -158,9 +163,11 @@ public class Client extends JFrame {
             return false;
         }
     }
+
     class MatrixInputFrame extends JFrame {
         private String operation;
         private int rowsA, colsA, rowsB, colsB;
+
         public MatrixInputFrame(String operation, int rowsA, int colsA, int rowsB, int colsB) {
             this.operation = operation;
             this.rowsA = rowsA;
@@ -251,27 +258,25 @@ public class Client extends JFrame {
         }
 
     }
+
+
     class ImageFilteringFrame extends JFrame {
         private JLabel originalImageLabel;
         private JLabel filteredImageLabel;
-        private JComboBox<String> tasksComboBox;
         private BufferedImage originalImage;
         private BufferedImage filteredImage;
-        private String value;
-        private String task;
-        private int[][] kernel = new int[3][3];
+        private double zoomLevel = 1.0;
 
         public ImageFilteringFrame() {
             setTitle("Image Filtering");
-            setSize(1370, 703);
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-            setLayout(new BorderLayout(20, 20));
+            setLayout(new BorderLayout());
 
             originalImageLabel = new JLabel();
             filteredImageLabel = new JLabel();
 
-            JPanel imagesPanel = new JPanel(new GridLayout(1, 2));
+            JPanel imagesPanel = new JPanel(new GridBagLayout());
+            imagesPanel.setBackground(Color.WHITE);
             imagesPanel.add(originalImageLabel);
             imagesPanel.add(filteredImageLabel);
             add(imagesPanel, BorderLayout.CENTER);
@@ -279,169 +284,119 @@ public class Client extends JFrame {
             JPanel controlsPanel = new JPanel();
             add(controlsPanel, BorderLayout.NORTH);
 
+            JMenuBar menuBar = new JMenuBar();
+            JMenu filterMenu = new JMenu("Filters");
+
+            JMenuItem convolutionFilterItem = new JMenuItem("Convolution Filter");
+            JMenuItem noiseFilterItem = new JMenuItem("Noise Salt and Pepper");
+            JMenuItem grayFilterItem = new JMenuItem("Gray Filter");
+            JMenuItem sepiaFilterItem = new JMenuItem("Sepia Filter");
+            JMenuItem invertFilterItem = new JMenuItem("Invert Filter");
+            JMenuItem brightnessFilterItem = new JMenuItem("Brightness Filter");
+
+            filterMenu.add(convolutionFilterItem);
+            filterMenu.add(noiseFilterItem);
+            filterMenu.add(grayFilterItem);
+            filterMenu.add(sepiaFilterItem);
+            filterMenu.add(invertFilterItem);
+            filterMenu.add(brightnessFilterItem);
+
+            menuBar.add(filterMenu);
+            setJMenuBar(menuBar);
+
+            convolutionFilterItem.addActionListener(e -> {
+                // Handle Convolution Filter action
+            });
+
+            noiseFilterItem.addActionListener(e -> {
+                // Handle Noise Filter action
+            });
+
+            grayFilterItem.addActionListener(e -> {
+                // Handle Gray Filter action
+            });
+
+            sepiaFilterItem.addActionListener(e -> {
+                // Handle Sepia Filter action
+            });
+
+            invertFilterItem.addActionListener(e -> {
+                // Handle Invert Filter action
+            });
+
+            brightnessFilterItem.addActionListener(e -> {
+                // Handle Brightness Filter action
+            });
+
             JButton chooseImageButton = new JButton("Choose Image");
-            chooseImageButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int result = fileChooser.showOpenDialog(ImageFilteringFrame.this);
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            originalImage = ImageIO.read(fileChooser.getSelectedFile());
-                            int newWidth = 640;
-                            int newHeight = 640;
-                            Image resizedImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                            originalImageLabel.setIcon(new ImageIcon(resizedImage));
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+            chooseImageButton.addActionListener(e -> {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(ImageFilteringFrame.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        originalImage = ImageIO.read(fileChooser.getSelectedFile());
+                        updateOriginalImage();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
                 }
             });
             controlsPanel.add(chooseImageButton);
 
-            tasksComboBox = new JComboBox<>(
-                    new String[]{"CONVOLUTION FILTER", "NOISE SALT AND PEPPER", "GRAY FILTER", "SEPIA FILTER",
-                            "INVERT FILTER", "BRIGHTNESS FILTER"});
-            controlsPanel.add(tasksComboBox);
-
-            tasksComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (originalImage == null) {
-                        JOptionPane.showMessageDialog(ImageFilteringFrame.this, "Please select an image.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    task = (String) tasksComboBox.getSelectedItem();
-                    if (task.equals("CONVOLUTION FILTER")) {
-                        JTextField[][] textFields = new JTextField[3][3];
-                        JPanel panel = new JPanel();
-                        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-                        for (int i = 0; i < 3; i++) {
-                            JPanel rowPanel = new JPanel();
-                            for (int j = 0; j < 3; j++) {
-                                textFields[i][j] = new JTextField(5);
-                                rowPanel.add(textFields[i][j]);
-                            }
-                            panel.add(rowPanel);
-                        }
-                        int result = JOptionPane.showConfirmDialog(null, panel, "Enter Matrix",
-                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                        if (result == JOptionPane.OK_OPTION) {
-                            for (int i = 0; i < 3; i++) {
-                                for (int j = 0; j < 3; j++) {
-                                    kernel[i][j] = Integer.parseInt(textFields[i][j].getText());
-                                }
-                            }
-                        }
-                    }
-                    if (task.equals("NOISE SALT AND PEPPER")) {
-                        value = JOptionPane.showInputDialog(ImageFilteringFrame.this, "Enter level of noise ex : {0.02}:");
-                        System.out.println(value);
-                    }
-                    if (task.equals("BRIGHTNESS FILTER")) {
-                        value = JOptionPane.showInputDialog(ImageFilteringFrame.this, "Enter level of BRIGHTNESS ex :{100} :");
-                        System.out.println(value);
-                    }
+            JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 50, 200, 100);
+            zoomSlider.setMajorTickSpacing(50);
+            zoomSlider.setMinorTickSpacing(10);
+            zoomSlider.setPaintTicks(true);
+            zoomSlider.setPaintLabels(true);
+            zoomSlider.addChangeListener(e -> {
+                JSlider source = (JSlider) e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    int zoomValue = source.getValue();
+                    zoomLevel = zoomValue / 100.0;
+                    updateOriginalImage();
+                    updateFilteredImage(); // Update filtered image too
                 }
             });
+            controlsPanel.add(zoomSlider);
 
-            JButton processImageButton = new JButton("Process Image");
-            controlsPanel.add(processImageButton);
+            pack();
+            setLocationRelativeTo(null);
             setVisible(true);
-            processImageButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (originalImage == null) {
-                        JOptionPane.showMessageDialog(ImageFilteringFrame.this, "Please select an image.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    Socket socket = null;
-                    try {
-                        System.out.println("Adresse de MainServer");
-                        System.out.println("=> " + Client.MainServer_host + ":" + Client.MainServer_port);
-                        socket = new Socket(Client.MainServer_host, Client.MainServer_port);
-                        System.out.println("connected");
-                        ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-                        ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                        String state = (String) input.readObject();
-                        int[][] img = bufferedImageToIntArray(originalImage); // Use the local method here
-                        if (state.compareToIgnoreCase("active") == 0) {
-                            output.writeObject(task);
-                            if (task.compareToIgnoreCase("CONVOLUTION FILTER") == 0) {
-                                DataConvolution dataConvolution = new DataConvolution(img, kernel);
-                                output.writeObject(dataConvolution);
-                            }
-                            if (task.compareToIgnoreCase("NOISE SALT AND PEPPER") == 0) {
-                                DataNoise dataNoise = new DataNoise(img, Double.parseDouble(value));
-                                output.writeObject(dataNoise);
-                            }
-                            if (task.compareToIgnoreCase("GRAY FILTER") == 0) {
-                                DataGray dataGray = new DataGray(img);
-                                output.writeObject(dataGray);
-                            }
-                            if (task.compareToIgnoreCase("SEPIA FILTER") == 0) {
-                                DataSapia sapil = new DataSapia(img);
-                                output.writeObject(sapil);
-                            }
-                            if (task.compareToIgnoreCase("INVERT FILTER") == 0) {
-                                Datainvert inverse = new Datainvert(img);
-                                output.writeObject(inverse);
-                            }
-                            if (task.compareToIgnoreCase("BRIGHTNESS FILTER") == 0) {
-                                Databright dataNoise = new Databright(img, Double.parseDouble(value));
-                                output.writeObject(dataNoise);
-                            }
-                            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                            DataResult pixels = (DataResult) in.readObject();
-                            filteredImage = intArrayToBufferedImage(pixels.image); // Use the local method here
-                            int newWidth = 640;
-                            int newHeight = 640;
-                            Image resizedImage = filteredImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                            filteredImageLabel.setIcon(new ImageIcon(resizedImage));
-                        }
-                    } catch (Exception ex) {
-                        System.out.println(ex.getMessage());
-                    } finally {
-                        if (socket != null) {
-                            try {
-                                socket.close();
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            });
         }
 
-        // Method to convert BufferedImage to int array
-        public static int[][] bufferedImageToIntArray(BufferedImage image) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int[][] result = new int[height][width];
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    result[y][x] = image.getRGB(x, y);
-                }
+        private void updateOriginalImage() {
+            if (originalImage != null) {
+                int newWidth = (int) (originalImage.getWidth() * zoomLevel);
+                int newHeight = (int) (originalImage.getHeight() * zoomLevel);
+                Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                originalImageLabel.setIcon(new ImageIcon(scaledImage));
+                centerImage(originalImageLabel);
             }
-            return result;
         }
 
-        // Method to convert int array to BufferedImage
-        public static BufferedImage intArrayToBufferedImage(int[][] pixels) {
-            int height = pixels.length;
-            int width = pixels[0].length;
-            BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    result.setRGB(x, y, pixels[y][x]);
-                }
+        private void centerImage(JLabel label) {
+            Icon icon = label.getIcon();
+            if (icon != null && icon instanceof ImageIcon) {
+                ImageIcon imageIcon = (ImageIcon) icon;
+                int labelWidth = label.getWidth();
+                int labelHeight = label.getHeight();
+                int iconWidth = imageIcon.getIconWidth();
+                int iconHeight = imageIcon.getIconHeight();
+                int x = (labelWidth - iconWidth) / 2;
+                int y = (labelHeight - iconHeight) / 2;
+                label.setIcon(new ImageIcon(imageIcon.getImage().getScaledInstance(-1, -1, Image.SCALE_DEFAULT)));
+                label.setIcon(new ImageIcon(imageIcon.getImage().getScaledInstance(iconWidth, iconHeight, Image.SCALE_DEFAULT)));
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setVerticalAlignment(SwingConstants.CENTER);
+                label.setBounds(x, y, iconWidth, iconHeight);
             }
-            return result;
+        }
+
+        private void updateFilteredImage() {
+            // Implement updating of filtered image
         }
     }
+
+
 
 }

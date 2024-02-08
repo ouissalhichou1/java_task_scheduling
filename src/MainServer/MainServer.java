@@ -35,7 +35,7 @@ public class MainServer extends Thread {
         Properties prop = new Properties();
         FileInputStream ip;
         // Default
-        String FileConfiguration = "C:\\Users\\hp\\Documents\\GitHub\\java_task_scheduling\\cfgMainServer.properties";
+        String FileConfiguration = "C:\\xampp\\htdocs\\GitHub\\java_task_scheduling\\cfgMainServer.properties";
         if (args.length > 0)
             FileConfiguration = args[0];
         try {
