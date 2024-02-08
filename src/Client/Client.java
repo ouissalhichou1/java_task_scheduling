@@ -17,7 +17,6 @@ import java.util.Properties;
 public class Client extends JFrame {
     static int MainServer_port;
     static String MainServer_host;
-
     public Client() {
         setTitle("Choose Operation");
         setSize(300, 150);
@@ -46,11 +45,8 @@ public class Client extends JFrame {
 
         setVisible(true);
     }
-
     public static void main(String[] args) {
         Properties prop = new Properties();
-        final String serverHost = "localhost"; // Change this to your server's host address
-        final int serverPort = 5200;
         String FileConfiguration = "cfgClient.properties";
         if (args.length > 0)
             FileConfiguration = args[0];
@@ -63,21 +59,14 @@ public class Client extends JFrame {
         MainServer_port = Integer.parseInt(prop.getProperty("MainServer.port"));
         MainServer_host = prop.getProperty("MainServer.host");
 
-        // Establish socket connection to the server
-        try (Socket socket = new Socket(MainServer_host, MainServer_port);
-             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-             ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
-
-            // Communication with the server can be performed here
-
-            // Open the client GUI
-            SwingUtilities.invokeLater(Client::new);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new Client();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
-
     class MatrixCalculationsFrame extends JFrame {
 
         private JComboBox<String> operationComboBox;
@@ -165,11 +154,9 @@ public class Client extends JFrame {
             return false;
         }
     }
-
     class MatrixInputFrame extends JFrame {
         private String operation;
         private int rowsA, colsA, rowsB, colsB;
-
         public MatrixInputFrame(String operation, int rowsA, int colsA, int rowsB, int colsB) {
             this.operation = operation;
             this.rowsA = rowsA;
@@ -260,145 +247,6 @@ public class Client extends JFrame {
         }
 
     }
-
-
-    class ImageFilteringFrame extends JFrame {
-        private JLabel originalImageLabel;
-        private JLabel filteredImageLabel;
-        private BufferedImage originalImage;
-        private BufferedImage filteredImage;
-        private double zoomLevel = 1.0;
-
-        public ImageFilteringFrame() {
-            setTitle("Image Filtering");
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setLayout(new BorderLayout());
-
-            originalImageLabel = new JLabel();
-            filteredImageLabel = new JLabel();
-
-            JPanel imagesPanel = new JPanel(new GridBagLayout());
-            imagesPanel.setBackground(Color.WHITE);
-            imagesPanel.add(originalImageLabel);
-            imagesPanel.add(filteredImageLabel);
-            add(imagesPanel, BorderLayout.CENTER);
-
-            JPanel controlsPanel = new JPanel();
-            add(controlsPanel, BorderLayout.NORTH);
-
-            JMenuBar menuBar = new JMenuBar();
-            JMenu filterMenu = new JMenu("Filters");
-
-            JMenuItem convolutionFilterItem = new JMenuItem("Convolution Filter");
-            JMenuItem noiseFilterItem = new JMenuItem("Noise Salt and Pepper");
-            JMenuItem grayFilterItem = new JMenuItem("Gray Filter");
-            JMenuItem sepiaFilterItem = new JMenuItem("Sepia Filter");
-            JMenuItem invertFilterItem = new JMenuItem("Invert Filter");
-            JMenuItem brightnessFilterItem = new JMenuItem("Brightness Filter");
-
-            filterMenu.add(convolutionFilterItem);
-            filterMenu.add(noiseFilterItem);
-            filterMenu.add(grayFilterItem);
-            filterMenu.add(sepiaFilterItem);
-            filterMenu.add(invertFilterItem);
-            filterMenu.add(brightnessFilterItem);
-
-            menuBar.add(filterMenu);
-            setJMenuBar(menuBar);
-
-            convolutionFilterItem.addActionListener(e -> {
-                // Handle Convolution Filter action
-            });
-
-            noiseFilterItem.addActionListener(e -> {
-                // Handle Noise Filter action
-            });
-
-            grayFilterItem.addActionListener(e -> {
-                // Handle Gray Filter action
-            });
-
-            sepiaFilterItem.addActionListener(e -> {
-                // Handle Sepia Filter action
-            });
-
-            invertFilterItem.addActionListener(e -> {
-                // Handle Invert Filter action
-            });
-
-            brightnessFilterItem.addActionListener(e -> {
-                // Handle Brightness Filter action
-            });
-
-            JButton chooseImageButton = new JButton("Choose Image");
-            chooseImageButton.addActionListener(e -> {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(ImageFilteringFrame.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        originalImage = ImageIO.read(fileChooser.getSelectedFile());
-                        updateOriginalImage();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-            controlsPanel.add(chooseImageButton);
-
-            JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 50, 200, 100);
-            zoomSlider.setMajorTickSpacing(50);
-            zoomSlider.setMinorTickSpacing(10);
-            zoomSlider.setPaintTicks(true);
-            zoomSlider.setPaintLabels(true);
-            zoomSlider.addChangeListener(e -> {
-                JSlider source = (JSlider) e.getSource();
-                if (!source.getValueIsAdjusting()) {
-                    int zoomValue = source.getValue();
-                    zoomLevel = zoomValue / 100.0;
-                    updateOriginalImage();
-                    updateFilteredImage(); // Update filtered image too
-                }
-            });
-            controlsPanel.add(zoomSlider);
-
-            pack();
-            setLocationRelativeTo(null);
-            setVisible(true);
-        }
-
-        private void updateOriginalImage() {
-            if (originalImage != null) {
-                int newWidth = (int) (originalImage.getWidth() * zoomLevel);
-                int newHeight = (int) (originalImage.getHeight() * zoomLevel);
-                Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                originalImageLabel.setIcon(new ImageIcon(scaledImage));
-                centerImage(originalImageLabel);
-            }
-        }
-
-        private void centerImage(JLabel label) {
-            Icon icon = label.getIcon();
-            if (icon != null && icon instanceof ImageIcon) {
-                ImageIcon imageIcon = (ImageIcon) icon;
-                int labelWidth = label.getWidth();
-                int labelHeight = label.getHeight();
-                int iconWidth = imageIcon.getIconWidth();
-                int iconHeight = imageIcon.getIconHeight();
-                int x = (labelWidth - iconWidth) / 2;
-                int y = (labelHeight - iconHeight) / 2;
-                label.setIcon(new ImageIcon(imageIcon.getImage().getScaledInstance(-1, -1, Image.SCALE_DEFAULT)));
-                label.setIcon(new ImageIcon(imageIcon.getImage().getScaledInstance(iconWidth, iconHeight, Image.SCALE_DEFAULT)));
-                label.setHorizontalAlignment(SwingConstants.CENTER);
-                label.setVerticalAlignment(SwingConstants.CENTER);
-                label.setBounds(x, y, iconWidth, iconHeight);
-            }
-        }
-
-        private void updateFilteredImage() {
-            // Implement updating of filtered image
-        }
-    }
-
 
 
 }
