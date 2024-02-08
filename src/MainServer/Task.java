@@ -8,7 +8,7 @@ public class Task {
     int[][] image;
     int TaskId;
 
-    public Task(Socket client,int TaskId) {
+    public Task(Socket client, int TaskId, String taskName) {
         this.client = client;
         this.TaskId=TaskId;
     }
