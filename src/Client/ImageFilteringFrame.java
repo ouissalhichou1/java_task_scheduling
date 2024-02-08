@@ -2,9 +2,6 @@ package Client;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,35 +13,19 @@ public class ImageFilteringFrame extends JFrame {
     private JLabel filteredImageLabel;
     private BufferedImage originalImage;
     private BufferedImage filteredImage;
-    private double zoomLevel = 1.0;
+    private double zoomLevel = 0.5;
 
     public ImageFilteringFrame() {
         setTitle("Image Filtering");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        getContentPane().setBackground(Color.decode("#C0BCB5")); // Set background color of the frame
 
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        JPanel rightPanel = new JPanel(new BorderLayout());
-
-        originalImageLabel = new JLabel();
-        filteredImageLabel = new JLabel();
-
-        // Add padding to the left panel to move the image to the right
-        leftPanel.setBorder(new EmptyBorder(0, 50, 0, 0));
-        leftPanel.add(originalImageLabel, BorderLayout.CENTER);
-        rightPanel.add(filteredImageLabel, BorderLayout.CENTER);
-
-        add(leftPanel, BorderLayout.WEST);
-        add(rightPanel, BorderLayout.EAST);
-
-        JPanel controlsPanel = new JPanel(new GridBagLayout()); // Use GridBagLayout for centering components
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(10, 0, 10, 50); // Add some padding
-
-        JButton chooseImageButton = new JButton("Choose Image");
-        chooseImageButton.addActionListener(new ActionListener() {
+        // Create a menu bar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem openMenuItem = new JMenuItem("Open");
+        openMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
@@ -59,16 +40,13 @@ public class ImageFilteringFrame extends JFrame {
                 }
             }
         });
-        // Set margin for the button
-        chooseImageButton.setMargin(new Insets(10, 20, 10, 20)); // Top, Left, Bottom, Right
-        controlsPanel.add(chooseImageButton, gbc);
+        fileMenu.add(openMenuItem);
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
 
-        gbc.gridy++;
+        // Create a panel for process button
+        JPanel processButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton processImageButton = new JButton("Process Image");
-        // Set margin for the button
-        processImageButton.setMargin(new Insets(10, 20, 10, 20)); // Top, Left, Bottom, Right
-        controlsPanel.add(processImageButton, gbc);
-
         processImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,96 +54,74 @@ public class ImageFilteringFrame extends JFrame {
                     JOptionPane.showMessageDialog(ImageFilteringFrame.this, "Please select an image.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                // Send the original image to the server for filtering
-                // Implement the logic to send the image to the server and receive the filtered image
-                // For now, let's assume we have a method called sendImageToServer(BufferedImage image)
-                // and a method called receiveFilteredImag() that returns the filtered image
                 filteredImage = sendImageToServer(originalImage);
                 updateFilteredImage();
             }
         });
+        processButtonPanel.add(processImageButton);
 
-        gbc.gridy++;
-        JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 50, 200, 100);
-        zoomSlider.setMajorTickSpacing(50);
-        zoomSlider.setMinorTickSpacing(10);
-        zoomSlider.setPaintTicks(true);
-        zoomSlider.setPaintLabels(true);
-        zoomSlider.addChangeListener(new ChangeListener() { // Implement ChangeListener interface here
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                JSlider source = (JSlider) e.getSource(); // Casting the event source to JSlider
-                if (!source.getValueIsAdjusting()) {
-                    int zoomValue = source.getValue();
-                    zoomLevel = zoomValue / 100.0;
-                    updateOriginalImage();
-                    updateFilteredImage(); // Update filtered image too
-                }
-            }
+        // Create controls panel for process button
+        JPanel controlsPanel = new JPanel(new BorderLayout());
+        controlsPanel.add(processButtonPanel, BorderLayout.NORTH);
+        controlsPanel.setBackground(Color.decode("#C0BCB5")); // Set background color of the controls panel
+        add(controlsPanel, BorderLayout.NORTH);
+
+        // Create a side panel for filters
+        JPanel sidePanel = new JPanel(new GridLayout(0, 1));
+        sidePanel.setPreferredSize(new Dimension(200, 0)); // Set preferred width for the side panel
+        sidePanel.setBackground(Color.decode("#C0BCB5")); // Set background color of the side panel
+
+        // Create buttons for filters
+        JButton convolutionButton = new JButton("Convolution Filter");
+        JButton noiseButton = new JButton("Noise Salt and Pepper");
+        JButton grayButton = new JButton("Gray Filter");
+        JButton sepiaButton = new JButton("Sepia Filter");
+        JButton invertButton = new JButton("Invert Filter");
+        JButton brightnessButton = new JButton("Brightness Filter");
+
+        // Add action listeners to filter buttons
+        convolutionButton.addActionListener(e -> {
+            // Handle Convolution Filter action
         });
-        controlsPanel.add(zoomSlider, gbc);
-
-        rightPanel.add(controlsPanel, BorderLayout.CENTER);
-
-        // Create a menu bar
-        JMenuBar menuBar = new JMenuBar();
-
-        JMenu convolutionFilterItem = new JMenu("Convolution Filter");
-        JMenu noiseFilterItem = new JMenu("Noise Salt and Pepper");
-        JMenu grayFilterItem = new JMenu("Gray Filter");
-        JMenu sepiaFilterItem = new JMenu("Sepia Filter");
-        JMenu invertFilterItem = new JMenu("Invert Filter");
-        JMenu brightnessFilterItem = new JMenu("Brightness Filter");
-
-        menuBar.add(convolutionFilterItem);
-        menuBar.add(noiseFilterItem);
-        menuBar.add(grayFilterItem);
-        menuBar.add(sepiaFilterItem);
-        menuBar.add(invertFilterItem);
-        menuBar.add(brightnessFilterItem);
-        setJMenuBar(menuBar);
-
-        convolutionFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Convolution Filter action
-            }
+        noiseButton.addActionListener(e -> {
+            // Handle Noise Filter action
+        });
+        grayButton.addActionListener(e -> {
+            // Handle Gray Filter action
+        });
+        sepiaButton.addActionListener(e -> {
+            // Handle Sepia Filter action
+        });
+        invertButton.addActionListener(e -> {
+            // Handle Invert Filter action
+        });
+        brightnessButton.addActionListener(e -> {
+            // Handle Brightness Filter action
         });
 
-        noiseFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Noise Filter action
-            }
-        });
+        // Add buttons to the side panel
+        sidePanel.add(convolutionButton);
+        sidePanel.add(noiseButton);
+        sidePanel.add(grayButton);
+        sidePanel.add(sepiaButton);
+        sidePanel.add(invertButton);
+        sidePanel.add(brightnessButton);
 
-        grayFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Gray Filter action
-            }
-        });
+        // Add the side panel to the frame
+        add(sidePanel, BorderLayout.WEST);
 
-        sepiaFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Sepia Filter action
-            }
-        });
+        // Create a panel for the image display and controls
+        JPanel imagePanel = new JPanel(new BorderLayout());
+        imagePanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 20)); // Add padding of 20 pixels
+        imagePanel.setBackground(Color.decode("#C0BCB5")); // Set background color of the image panel
 
-        invertFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Invert Filter action
-            }
-        });
+        originalImageLabel = new JLabel();
+        filteredImageLabel = new JLabel();
 
-        brightnessFilterItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle Brightness Filter action
-            }
-        });
+        imagePanel.add(originalImageLabel, BorderLayout.CENTER);
+        imagePanel.add(filteredImageLabel, BorderLayout.EAST);
+
+        add(imagePanel, BorderLayout.CENTER);
 
         pack();
         setLocationRelativeTo(null);
@@ -190,10 +146,8 @@ public class ImageFilteringFrame extends JFrame {
         }
     }
 
-    // Method to send the original image to the server and receive the filtered image
     private BufferedImage sendImageToServer(BufferedImage originalImage) {
-        // Implement the logic to send the image to the server and receive the filtered image
-        // For now, let's return the original image itself
+        // Dummy method, replace with actual implementation
         return originalImage;
     }
 
