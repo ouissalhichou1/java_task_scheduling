@@ -1,5 +1,7 @@
 package Client;
 
+import Ressources.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -7,13 +9,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class ImageFilteringFrame extends JFrame {
+
+    static int MainServer_port;
+    static String MainServer_host;
     private JLabel originalImageLabel;
     private JLabel filteredImageLabel;
     private BufferedImage originalImage;
     private BufferedImage filteredImage;
     private double zoomLevel = 0.5;
+    static String value;
+    static String task;
+    static int[][] kernel = new int[3][3];
 
     public ImageFilteringFrame() {
         setTitle("Image Filtering");
@@ -56,8 +67,7 @@ public class ImageFilteringFrame extends JFrame {
                     JOptionPane.showMessageDialog(ImageFilteringFrame.this, "Please select an image.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                filteredImage = sendImageToServer(originalImage);
-                updateFilteredImage();
+                sendTaskToServer();
             }
         });
         processButtonPanel.add(processImageButton);
@@ -98,22 +108,30 @@ public class ImageFilteringFrame extends JFrame {
 
         // Add action listeners to filter buttons
         convolutionButton.addActionListener(e -> {
-            // Handle Convolution Filter action
+            task = "CONVOLUTION FILTER";
+            sendTaskToServer();
         });
         noiseButton.addActionListener(e -> {
-            // Handle Noise Filter action
+            task = "NOISE SALT AND PEPPER";
+            value = JOptionPane.showInputDialog(ImageFilteringFrame.this, "Enter level of noise ex : {0.02}:");
+            sendTaskToServer();
         });
         grayButton.addActionListener(e -> {
-            // Handle Gray Filter action
+            task = "GRAY FILTER";
+            sendTaskToServer();
         });
         sepiaButton.addActionListener(e -> {
-            // Handle Sepia Filter action
+            task = "SEPIA FILTER";
+            sendTaskToServer();
         });
         invertButton.addActionListener(e -> {
-            // Handle Invert Filter action
+            task = "INVERT FILTER";
+            sendTaskToServer();
         });
         brightnessButton.addActionListener(e -> {
-            // Handle Brightness Filter action
+            task = "BRIGHTNESS FILTER";
+            value = JOptionPane.showInputDialog(ImageFilteringFrame.this, "Enter level of BRIGHTNESS ex :{100} :");
+            sendTaskToServer();
         });
 
         // Add buttons to the side panel
@@ -154,23 +172,16 @@ public class ImageFilteringFrame extends JFrame {
         }
     }
 
-    private void updateFilteredImage() {
-        if (filteredImage != null) {
-            int newWidth = (int) (filteredImage.getWidth() * zoomLevel);
-            int newHeight = (int) (filteredImage.getHeight() * zoomLevel);
-            Image scaledImage = filteredImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-            filteredImageLabel.setIcon(new ImageIcon(scaledImage));
+    private void sendTaskToServer() {
+        try {
+            Socket socket = new Socket(MainServer_host, MainServer_port);
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            output.writeObject(task);
+            output.writeObject(value);
+            socket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
-    private BufferedImage sendImageToServer(BufferedImage originalImage) {
-        // Dummy method, replace with actual implementation
-        return originalImage;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ImageFilteringFrame();
-        });
-    }
 }
